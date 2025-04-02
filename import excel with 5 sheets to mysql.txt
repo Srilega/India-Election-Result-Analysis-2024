@@ -1,0 +1,42 @@
+!pip install pandas openpyxl sqlalchemy pymysql
+
+[importing pandas to read the excel file. SQLalchemy is a database tool and it is used to manage the database.It supports MySQL,sqlite,etc. create_engine is used to create connection between python and database. it is a database engine used to run queries and interact with databases
+)
+import pandas as pd
+from sqlalchemy import create_engine 
+
+# MySQL Connection String (Update with your details)
+host = "127.0.0.1"  # Change if needed
+user = "root"
+password = "root"
+database = "india_election_results"
+
+(is a formatted connection string used in SQLAlchemy to connect to a MySQL database using the pymysql driver)
+(PyMySQL is a Python library that allows you to connect to and interact with a MySQL database using Python. It is a pure Python-based MySQL client that does not require MySQL’s C library, making it easy to install and use)
+
+# Create engine
+engine = create_engine(f"mysql+pymysql://{user}:{password}@{host}/{database}")
+
+
+( r --- raw string literal in Python. The r before the string ensures that backslashes (\) are treated literally, rather than as escape sequences (like \n for newline, \t for tab, etc.).
+# Load the Excel workbook
+file_path = r"C:\Users\HUAWEI\OneDrive\Documents\projects\India election result analysis 2024\dataset\Book1.xlsx"
+xls = pd.ExcelFile(file_path)
+
+# Loop through each sheet and save it as a table
+
+[xls.sheet_names returns a list of sheet names in the Excel file.
+🔹 The loop ensures each sheet is processed individually.]
+[to_sql() writes the DataFrame (df) to MySQL as a table.
+
+table_name → Table name in MySQL.
+con=engine → Uses the SQLAlchemy engine for database connection.
+if_exists="replace" → If the table already exists, it replaces it.
+index=False → Avoids storing the Pandas index as a column in MySQL.]
+
+for sheet_name in xls.sheet_names:
+    df = xls.parse(sheet_name)  # Read the sheet
+    table_name = sheet_name.lower().replace(" ", "_")  # Convert sheet name to table name
+    df.to_sql(table_name, con=engine, if_exists="replace", index=False)  # Save to MySQL
+
+print("Sheets converted to MySQL tables successfully!")
